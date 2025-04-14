@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +91,7 @@
         }
 
         .hero {
-            background: url('https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80') no-repeat center center;
+            background: url("{% static 'images/moi.jpg' %}") no-repeat center center;
             background-size: cover;
             height: 500px;
             display: flex;
@@ -277,12 +278,12 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="{% url 'home' %}" class="logo">
+            <a href="{% url 'index' %}" class="logo">
                 <i class="fas fa-water"></i>
                 AquaPredict
             </a>
             <div class="nav-links">
-                <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                <a href="{% url 'index' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
                 <a href="{% url 'train' %}" class="{% if request.resolver_match.url_name == 'train' %}active{% endif %}">Train Model</a>
                 <a href="{% url 'predict' %}" class="{% if request.resolver_match.url_name == 'predict' %}active{% endif %}">Predict</a>
                 <a href="#contact">Contact</a>
@@ -301,19 +302,30 @@
             </div>
         </div>
 
-        <div class="container">
-            <div class="image-grid">
-                <div class="grid-item">
-                    <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Water Treatment Plant">
-                </div>
-                <div class="grid-item">
-                    <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Water Analysis">
-                </div>
-                <div class="grid-item">
-                    <img src="https://images.unsplash.com/photo-1545173168-9f1947eebb7f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Sustainable Water">
-                </div>
-            </div>
+        {% load static %}
+
+<div class="container">
+
+    <!-- New Team Section -->
+    <h2 class="team-heading">Meet The Developers</h2>
+    <div class="team-grid">
+        <!-- Joseph Kibet -->
+        <div class="team-member">
+            <img src="{% static 'images/kibe.jpg' %}" alt="Joseph Kibet" class="team-photo">
+            <h3>Joseph Kibet</h3>
+            <p>MSc. Environmental Engineering<br>Moi University</p>
+            <p class="bio">Specialized in wastewater modeling and predictive analytics for treatment systems.</p>
         </div>
+
+        <!-- Peter Muuo -->
+        <div class="team-member">
+            <img src="{% static 'images/peter.jpg' %}" alt="Peter Muuo" class="team-photo">
+            <h3>Peter Muuo</h3>
+            <p>BSc. Computer Science<br>Moi University</p>
+            <p class="bio">Full-stack developer with expertise in machine learning implementations for environmental solutions.</p>
+        </div>
+    </div>
+</div>
         {% endblock %}
     </main>
 
@@ -330,7 +342,7 @@
             </div>
             <div class="footer-column">
                 <h3>Quick Links</h3>
-                <p><a href="{% url 'home' %}" style="color: white; text-decoration: none;">Home</a></p>
+                <p><a href="{% url 'index' %}" style="color: white; text-decoration: none;">Home</a></p>
                 <p><a href="{% url 'train' %}" style="color: white; text-decoration: none;">Train Model</a></p>
                 <p><a href="{% url 'predict' %}" style="color: white; text-decoration: none;">Predict</a></p>
             </div>
