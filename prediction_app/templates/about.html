@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2><i class="fas fa-info-circle"></i> About AquaPredict</h2>
+        
+        <div class="about-content">
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Water Treatment">
+            </div>
+            
+            <div class="about-text">
+                <h3>Our Mission</h3>
+                <p>AquaPredict leverages artificial intelligence to help wastewater treatment plants optimize their processes and predict effluent quality with unprecedented accuracy.</p>
+                
+                <h3>Technology</h3>
+                <p>Our system uses advanced machine learning algorithms including Random Forests, XGBoost, and Extra Trees to analyze influent characteristics and predict effluent parameters.</p>
+                
+                <div class="tech-features">
+                    <div class="feature">
+                        <i class="fas fa-brain"></i>
+                        <p>AI-Powered Predictions</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Real-time Analytics</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>Compliance Monitoring</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .about-content {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+    
+    .about-image {
+        flex: 1;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .about-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .about-text {
+        flex: 2;
+    }
+    
+    .about-text h3 {
+        color: var(--primary-green);
+        margin: 1.5rem 0 0.5rem;
+    }
+    
+    .tech-features {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .feature {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(46, 139, 87, 0.1);
+        border-radius: 8px;
+        flex: 1;
+    }
+    
+    .feature i {
+        font-size: 2rem;
+        color: var(--accent-teal);
+        margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .about-content {
+            flex-direction: column;
+        }
+        
+        .tech-features {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

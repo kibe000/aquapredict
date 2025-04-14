@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2><i class="fas fa-cogs"></i> Train Prediction Model</h2>
+
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="training-steps">
+            <div class="step {% if not influent_uploaded %}active{% endif %}">
+                <div class="step-number">1</div>
+                <h3>Upload Influent Data</h3>
+                <p>Excel file containing input parameters (COD, pH, TSS, TDS, Conductivity)</p>
+                <form method="post" enctype="multipart/form-data" class="upload-form">
+                    {% csrf_token %}
+                    <div class="file-upload">
+                        <input type="file" name="influent_file" id="influent-file" accept=".xlsx,.xls" required>
+                        <label for="influent-file" class="btn-upload">
+                            <i class="fas fa-file-excel"></i> Choose File
+                        </label>
+                        <span id="influent-file-name">No file chosen</span>
+                    </div>
+                    <button type="submit" class="btn-submit">Upload Influent Data</button>
+                </form>
+            </div>
+
+            <div class="step {% if influent_uploaded and not training_done %}active{% endif %}">
+                <div class="step-number">2</div>
+                <h3>Upload Effluent Data</h3>
+                <p>Excel file containing corresponding output parameters (Effluent_*)</p>
+                <form method="post" enctype="multipart/form-data" class="upload-form">
+                    {% csrf_token %}
+                    <div class="file-upload">
+                        <input type="file" name="effluent_file" id="effluent-file" accept=".xlsx,.xls" required>
+                        <label for="effluent-file" class="btn-upload">
+                            <i class="fas fa-file-excel"></i> Choose File
+                        </label>
+                        <span id="effluent-file-name">No file chosen</span>
+                    </div>
+                    <button type="submit" class="btn-submit">Train Model</button>
+                </form>
+            </div>
+
+            {% if training_done %}
+            <div class="step success">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <h3>Training Complete!</h3>
+                <p>Model is ready for predictions</p>
+                <div class="success-message">
+                    <i class="fas fa-robot"></i>
+                    <p>AI model has been successfully trained with your data</p>
+                </div>
+                <a href="{% url 'prediction_app:predict' %}" class="btn-predict">
+                    <i class="fas fa-bolt"></i> Go to Predictions
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .training-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .step {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 2rem;
+        border-left: 5px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+    .step.active {
+        border-left: 5px solid var(--accent-teal);
+        box-shadow: 0 5px 15px rgba(46, 139, 87, 0.1);
+    }
+
+    .step.success {
+        border-left: 5px solid #4CAF50;
+        background: rgba(76, 175, 80, 0.05);
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: #e0e0e0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #757575;
+    }
+
+    .active .step-number {
+        background: var(--accent-teal);
+        color: white;
+    }
+
+    .success .step-number {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .file-upload {
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .file-upload input[type="file"] {
+        display: none;
+    }
+
+    .btn-upload {
+        display: inline-block;
+        background: var(--primary-green);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .btn-upload:hover {
+        background: var(--dark-green);
+        transform: translateY(-2px);
+    }
+
+    #influent-file-name, #effluent-file-name {
+        margin-left: 1rem;
+        color: #757575;
+    }
+
+    .btn-submit {
+        background: var(--accent-teal);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-submit:hover {
+        background: var(--dark-green);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .success-message {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(76, 175, 80, 0.1);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+
+    .success-message i {
+        font-size: 2rem;
+        color: #4CAF50;
+    }
+
+    .btn-predict {
+        display: inline-block;
+        background: var(--accent-teal);
+        color: white;
+        padding: 0.8rem 2rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .btn-predict:hover {
+        background: var(--dark-green);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-container {
+        margin-bottom: 2rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .alert.success {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4CAF50;
+        color: #2E7D32;
+    }
+
+    .alert.error {
+        background: rgba(239, 83, 80, 0.1);
+        border-left: 4px solid #EF5350;
+        color: #C62828;
+    }
+
+    .alert.warning {
+        background: rgba(255, 152, 0, 0.1);
+        border-left: 4px solid #FF9800;
+        color: #E65100;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        cursor: pointer;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    // Display selected file names
+    document.getElementById('influent-file').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+        document.getElementById('influent-file-name').textContent = fileName;
+    });
+
+    document.getElementById('effluent-file').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+        document.getElementById('effluent-file-name').textContent = fileName;
+    });
+</script>
+{% endblock %}
