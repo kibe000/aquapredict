@@ -4,13 +4,16 @@ from .ml_predictor import EffluentPredictor
 from .standards import NEMA_STANDARDS
 import tempfile
 import os
+
 def home(request):
     return render(request, 'index.html')
+
 def about(request):
     return render(request, 'about.html')
 
 def contact(request):
     return render(request, 'contact.html')
+
 predictor = EffluentPredictor()
 
 def _get_unit(param):
@@ -24,7 +27,6 @@ def _get_unit(param):
     }
     return units.get(param.replace('Effluent_', ''), '')
 
-
 def train(request):
     context = {}
 
@@ -32,7 +34,6 @@ def train(request):
         # Handle influent upload
         if 'influent_file' in request.FILES:
             try:
-                # Save influent file temporarily
                 influent_file = request.FILES['influent_file']
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
                     for chunk in influent_file.chunks():
@@ -45,33 +46,38 @@ def train(request):
             except Exception as e:
                 messages.error(request, f"Error uploading influent file: {str(e)}")
 
-        # Handle effluent upload and training
+        # Handle effluent upload and model training
         elif 'effluent_file' in request.FILES and 'influent_path' in request.session:
             try:
-                # Save effluent file temporarily
                 effluent_file = request.FILES['effluent_file']
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
                     for chunk in effluent_file.chunks():
                         tmp.write(chunk)
                     effluent_path = tmp.name
 
-                # Train model
-                if predictor.train_from_excel(request.session['influent_path'], effluent_path):
+                influent_path = request.session['influent_path']
+
+                # Train the model
+                if predictor.train_from_excel(influent_path, effluent_path):
                     messages.success(request, "Model trained successfully!")
                 else:
-                    messages.error(request, "Training failed")
+                    messages.error(request, "Training failed.")
 
                 # Cleanup
-                os.unlink(request.session['influent_path'])
-                os.unlink(effluent_path)
-                del request.session['influent_path']
+                if influent_path and os.path.exists(influent_path):
+                    os.unlink(influent_path)
+                if effluent_path and os.path.exists(effluent_path):
+                    os.unlink(effluent_path)
+                request.session.pop('influent_path', None)
 
             except Exception as e:
                 messages.error(request, f"Training error: {str(e)}")
-                if 'influent_path' in request.session:
-                    os.unlink(request.session['influent_path'])
-                if 'effluent_path' in locals():
+                influent_path = request.session.get('influent_path')
+                if influent_path and os.path.exists(influent_path):
+                    os.unlink(influent_path)
+                if 'effluent_path' in locals() and effluent_path and os.path.exists(effluent_path):
                     os.unlink(effluent_path)
+                request.session.pop('influent_path', None)
 
     context['training_done'] = predictor.is_trained
     return render(request, 'train.html', context)
@@ -97,9 +103,9 @@ def predict(request):
             results = []
             for param, value in predictions.items():
                 clean_param = param.replace('Effluent_', '')
-                standard = NEMA_STANDARDS.get(clean_param)
+                standard = NEMA_STANDARDS.get(param)
 
-                if isinstance(standard, tuple):  # pH range
+                if isinstance(standard, tuple):  # e.g. pH range
                     within_limits = standard[0] <= value <= standard[1]
                     limit_str = f"{standard[0]} - {standard[1]}"
                 else:
@@ -111,7 +117,7 @@ def predict(request):
                     'predicted_value': round(value, 2),
                     'standard_limit': limit_str,
                     'within_limits': within_limits,
-                    'unit': _get_unit(param)  # Fixed: Using standalone function now
+                    'unit': _get_unit(param)
                 })
 
             context.update({

@@ -14,7 +14,27 @@ from sklearn.metrics import r2_score, mean_absolute_error
 
 MODEL_DIR = 'prediction_app/ml_models'
 
+def train_from_dataframes(self, X, y):
+    """Train model directly from pandas DataFrames"""
+    try:
+        required_inputs = ['COD', 'pH', 'TSS', 'TDS', 'Conductivity']
+        required_outputs = ['Effluent_COD', 'Effluent_pH', 'Effluent_TSS',
+                          'Effluent_TDS', 'Effluent_Conductivity']
 
+        missing_in = [col for col in required_inputs if col not in X.columns]
+        missing_out = [col for col in required_outputs if col not in y.columns]
+
+        if missing_in:
+            raise ValueError(f"Missing in influent data: {missing_in}")
+        if missing_out:
+            raise ValueError(f"Missing in effluent data: {missing_out}")
+
+        X_clean, y_clean = self._preprocess_data(X[required_inputs], y[required_outputs])
+        self._train_models(X_clean, y_clean)
+        self.is_trained = True
+        return True
+    except Exception as e:
+        raise RuntimeError(f"Training failed: {str(e)}")
 class EffluentPredictor:
     def __init__(self):
         os.makedirs(MODEL_DIR, exist_ok=True)
